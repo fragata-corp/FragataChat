@@ -11,6 +11,7 @@
     "apollo-client": "^2.6.0",
     "apollo-link": "^1.2.11",
     "apollo-link-http": "^1.5.14",
+    "graphql": "^14.3.0",
     "react": "16.8.3",
     "react-native": "0.59.8"
   },
