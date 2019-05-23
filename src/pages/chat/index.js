@@ -1,8 +1,7 @@
 import React from "react";
 
 import { View, Text, ScrollView } from "react-native";
-import styles from "./Styles";
-
+import styles from "./styles";
 const Chat = () => (
   <View style={styles.container}>
     <ScrollView contentContainerStyle={styles.conversation}>
