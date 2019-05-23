@@ -1,0 +1,3 @@
+rootProject.name = 'fragataChat'
+
+include ':app'
