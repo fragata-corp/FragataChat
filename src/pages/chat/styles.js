@@ -46,6 +46,9 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 16,
     color: "#333"
+  },
+  loading: {
+    marginTop: 20
   }
 });
 

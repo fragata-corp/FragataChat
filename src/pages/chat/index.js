@@ -1,99 +1,87 @@
-import React from "react";
+import React, { Component } from "react";
 import { graphql } from "react-apollo";
-import {} from "graphql-tag";
+import gql from "graphql-tag";
 
 import {
   View,
   Text,
   ScrollView,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  ActivityIndicator
 } from "react-native";
 import styles from "./styles";
 import Input from "../input";
 
-const Chat = () => (
-  <KeyboardAvoidingView
-    behavior={Platform.os === "ios" ? "padding" : null}
-    keyboardShouldPersistTraps="never"
-    style={styles.container}
-  >
-    <ScrollView contentContainerStyle={styles.conversation}>
-      <View style={[styles.bubble, styles["bubble-left"]]}>
-        <Text style={styles.author}>Yago</Text>
-        <Text style={styles.message}>
-          Olá, essa é apenas uma mensagem de teste
-        </Text>
-      </View>
-      <View style={[styles.bubble, styles["bubble-right"]]}>
-        <Text style={styles.author}>Yago</Text>
-        <Text style={styles.message}>
-          Olá, essa é apenas uma mensagem de teste
-        </Text>
-      </View>
-      <View style={[styles.bubble, styles["bubble-left"]]}>
-        <Text style={styles.author}>Yago</Text>
-        <Text style={styles.message}>
-          Olá, essa é apenas uma mensagem de teste
-        </Text>
-      </View>
-      <View style={[styles.bubble, styles["bubble-left"]]}>
-        <Text style={styles.author}>Yago</Text>
-        <Text style={styles.message}>
-          Olá, essa é apenas uma mensagem de teste
-        </Text>
-      </View>
-      <View style={[styles.bubble, styles["bubble-right"]]}>
-        <Text style={styles.author}>Yago</Text>
-        <Text style={styles.message}>
-          Olá, essa é apenas uma mensagem de teste
-        </Text>
-      </View>
-      <View style={[styles.bubble, styles["bubble-left"]]}>
-        <Text style={styles.author}>Yago</Text>
-        <Text style={styles.message}>
-          Olá, essa é apenas uma mensagem de teste
-        </Text>
-      </View>
-      <View style={[styles.bubble, styles["bubble-left"]]}>
-        <Text style={styles.author}>Yago</Text>
-        <Text style={styles.message}>
-          Olá, essa é apenas uma mensagem de teste
-        </Text>
-      </View>
-      <View style={[styles.bubble, styles["bubble-right"]]}>
-        <Text style={styles.author}>Yago</Text>
-        <Text style={styles.message}>
-          Olá, essa é apenas uma mensagem de teste
-        </Text>
-      </View>
-      <View style={[styles.bubble, styles["bubble-left"]]}>
-        <Text style={styles.author}>Yago</Text>
-        <Text style={styles.message}>
-          Olá, essa é apenas uma mensagem de teste
-        </Text>
-      </View>
-      <View style={[styles.bubble, styles["bubble-left"]]}>
-        <Text style={styles.author}>Yago</Text>
-        <Text style={styles.message}>
-          Olá, essa é apenas uma mensagem de teste
-        </Text>
-      </View>
-      <View style={[styles.bubble, styles["bubble-right"]]}>
-        <Text style={styles.author}>Yago</Text>
-        <Text style={styles.message}>
-          Olá, essa é apenas uma mensagem de teste
-        </Text>
-      </View>
-      <View style={[styles.bubble, styles["bubble-left"]]}>
-        <Text style={styles.author}>Yago</Text>
-        <Text style={styles.message}>
-          Olá, essa é apenas uma mensagem de teste
-        </Text>
-      </View>
-    </ScrollView>
-    <Input />
-  </KeyboardAvoidingView>
-);
+const author = "Yago";
 
-export default Chat;
+class Chat extends Component {
+  componentDidUpdate() {
+    setTimeout(() => {
+      this.scrollView.scrollToEnd({ animated: false });
+    }, 0);
+  }
+
+  handleAddMessage = (proxy, { data: { createMessage } }) => {
+    const data = proxy.readQuery({
+      query: ConversationQuery
+    });
+
+    data.allMessages.push(createMessage);
+
+    proxy.writeQuery({
+      query: ConversationQuery,
+      data
+    });
+  };
+
+  renderChat = () =>
+    this.props.conversation.allMessages.map(item => (
+      <View
+        key={item.id}
+        style={[
+          styles.bubble,
+          item.from === author ? styles["bubble-right"] : styles["bubble-left"]
+        ]}
+      >
+        <Text style={styles.author}>{item.from}</Text>
+        <Text style={styles.message}>{item.message}</Text>
+      </View>
+    ));
+
+  render() {
+    return (
+      <KeyboardAvoidingView
+        behavior={Platform.os === "ios" ? "padding" : null}
+        style={styles.container}
+      >
+        <ScrollView
+          keyboardShouldPersistTraps="never"
+          ref={scrollView => (this.scrollView = scrollView)}
+          contentContainerStyle={styles.conversation}
+        >
+          {this.props.conversation.loading ? (
+            <ActivityIndicator style={styles.loading} color="#FFF" />
+          ) : (
+            this.renderChat()
+          )}
+        </ScrollView>
+        <Input author={author} onAddMessage={this.handleAddMessage} />
+      </KeyboardAvoidingView>
+    );
+  }
+}
+
+const ConversationQuery = gql`
+  query {
+    allMessages(orderBy: createdAt_ASC) {
+      id
+      from
+      message
+    }
+  }
+`;
+
+export default graphql(ConversationQuery, {
+  name: "conversation"
+})(Chat);
