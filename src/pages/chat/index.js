@@ -16,6 +16,34 @@ import Input from "../input";
 const author = "Yago";
 
 class Chat extends Component {
+  componentDidMount() {
+    this.props.conversation.subscribeToMore({
+      document: gql`
+        subscription onMessageAdded($author: String!) {
+          Message(
+            filter: { mutation_in: [CREATED], node: { from_not: $author } }
+          ) {
+            node {
+              id
+              from
+              message
+            }
+          }
+        }
+      `,
+      variables: {
+        author
+      },
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data["Message"]) return prev;
+
+        const newItem = subscriptionData.data["Message"].node;
+
+        return { ...prev, allMessages: [...prev.allMessages, newItem] };
+      }
+    });
+  }
+
   componentDidUpdate() {
     setTimeout(() => {
       this.scrollView.scrollToEnd({ animated: false });
