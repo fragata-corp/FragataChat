@@ -17,7 +17,7 @@
     "graphql-tag": "^2.10.1",
     "react": "16.8.3",
     "react-apollo": "^2.5.6",
-    "react-native": "0.59.8",
+    "react-native": "0.62.3",
     "subscriptions-transport-ws": "^0.9.16"
   },
   "devDependencies": {
